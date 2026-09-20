@@ -1,1 +1,102 @@
-<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TrevorChat</title><style>body{font-family:sans-serif;background:#0f172a;color:#fff;margin:0}.h{padding:15px;background:#1e293b;text-align:center;font-weight:bold;font-size:22px}.c{margin:20px;padding:20px;background:#1e293b;border-radius:12px}input{width:100%;padding:12px;margin:8px 0;border-radius:8px;border:none}button{width:100%;padding:12px;background:#3b82f6;color:#fff;border:none;border-radius:8px;font-weight:bold}#msgs{height:50vh;overflow:auto}.m{padding:8px 12px;margin:6px;border-radius:12px}.me{background:#3b82f6;margin-left:20%}.ot{background:#334155;margin-right:20%}</style><script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script><script>const firebaseConfig={apiKey:"PASTE",authDomain:"PASTE",projectId:"PASTE",storageBucket:"PASTE",messagingSenderId:"PASTE",appId:"PASTE"};firebase.initializeApp(firebaseConfig);</script></head><body><div class=h>⚡ TrevorChat</div><div id=auth class=c><h3>Login</h3><input id=email placeholder=Email><input id=pass type=password placeholder=Password><button onclick=login()>Login</button><button onclick=signup() style="background:#334155;margin-top:8px">Create Account</button></div><div id=app style=display:none class=c><div id=msgs></div><input id=msg placeholder="Type..."><button onclick=send()>Send</button><button onclick="firebase.auth().signOut()" style="background:#334155;margin-top:8px">Logout</button></div><script>const auth=firebase.auth(),db=firebase.firestore();function signup(){auth.createUserWithEmailAndPassword(email.value,pass.value).then(()=>db.collection("users").doc(auth.currentUser.uid).set({email:email.value}))}function login(){auth.signInWithEmailAndPassword(email.value,pass.value)}auth.onAuthStateChanged(u=>{if(u){document.getElementById("auth").style.display="none";document.getElementById("app").style.display="block";listen()}else{document.getElementById("auth").style.display="block";document.getElementById("app").style.display="none"}});function send(){if(!msg.value.trim())return;db.collection("chats").doc("global").collection("messages").add({text:msg.value,sender:auth.currentUser.email,time:firebase.firestore.FieldValue.serverTimestamp()});msg.value=""}function listen(){db.collection("chats").doc("global").collection("messages").orderBy("time").onSnapshot(s=>{let h="";s.forEach(d=>{let m=d.data(),is=m.sender==auth.currentUser.email;h+=`<div class=m ${is?"me":"ot"}><b>${m.sender}</b><br>${m.text}</div>`});msgs.innerHTML=h;msgs.scrollTop=99999})}</script></body></html>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TrevorChat</title>
+<style>
+body{font-family:sans-serif;background:#0f172a;color:#fff;margin:0}
+.h{padding:15px;background:#1e293b;text-align:center;font-weight:bold;font-size:22px}
+.c{margin:20px;padding:20px;background:#1e293b;border-radius:12px}
+input{width:100%;padding:12px;margin:8px 0;border-radius:8px;border:none;box-sizing:border-box}
+button{width:100%;padding:12px;background:#3b82f6;color:#fff;border:none;border-radius:8px;font-weight:bold;cursor:pointer}
+#msgs{height:50vh;overflow:auto;display:flex;flex-direction:column}
+.m{padding:8px 12px;margin:6px;border-radius:12px;max-width:70%;word-wrap:break-word}
+.me{background:#3b82f6;align-self:flex-end}
+.ot{background:#334155;align-self:flex-start}
+#err{color:#f87171}
+</style>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+<div class="h">⚡ TrevorChat</div>
+
+<div id="auth" class="c">
+<h3>Login</h3>
+<input id="email" placeholder="Email">
+<input id="pass" type="password" placeholder="Password">
+<button onclick="login()">Login</button>
+<button onclick="signup()" style="background:#334155;margin-top:8px">Create Account</button>
+<p id="err"></p>
+</div>
+
+<div id="app" style="display:none" class="c">
+<div id="msgs"></div>
+<input id="msg" placeholder="Type message...">
+<button onclick="send()">Send</button>
+<button onclick="firebase.auth().signOut()" style="background:#334155;margin-top:8px">Logout</button>
+</div>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyBsPuiVeKzIkFhOd9WZ2tD_yRqRYcPgPxA",
+  authDomain: "trevor-chat.firebaseapp.com",
+  projectId: "trevor-chat",
+  storageBucket: "trevor-chat.firebasestorage.app",
+  messagingSenderId: "563786361109",
+  appId: "1:563786361109:web:5e62e5af42d5826cb3611c",
+  measurementId: "G-BLEBWKRF4W"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+auth.onAuthStateChanged(user => {
+  if(user){
+    document.getElementById("auth").style.display="none";
+    document.getElementById("app").style.display="block";
+    loadMsgs();
+  } else {
+    document.getElementById("auth").style.display="block";
+    document.getElementById("app").style.display="none";
+  }
+});
+
+function signup(){
+  auth.createUserWithEmailAndPassword(email.value,pass.value)
+   .catch(e=>document.getElementById("err").innerText=e.message);
+}
+function login(){
+  auth.signInWithEmailAndPassword(email.value,pass.value)
+   .catch(e=>document.getElementById("err").innerText=e.message);
+}
+function send(){
+  const t = document.getElementById("msg").value;
+  if(!t) return;
+  db.collection("messages").add({
+    text: t,
+    uid: auth.currentUser.uid,
+    email: auth.currentUser.email,
+    time: firebase.firestore.FieldValue.serverTimestamp()
+  });
+  document.getElementById("msg").value="";
+}
+function loadMsgs(){
+  db.collection("messages").orderBy("time").onSnapshot(snap=>{
+    const box = document.getElementById("msgs");
+    box.innerHTML="";
+    snap.forEach(doc=>{
+      const d = doc.data();
+      const div = document.createElement("div");
+      div.className = "m "+(d.uid===auth.currentUser.uid?"me":"ot");
+      div.innerText = d.email.split("@")[0]+": "+d.text;
+      box.appendChild(div);
+    });
+    box.scrollTop = box.scrollHeight;
+  });
+}
+</script>
+</body>
+</html>
