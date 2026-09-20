@@ -1,0 +1,22 @@
+{
+  "name": "TrevorChat - Chat & Play",
+  "short_name": "TrevorChat",
+  "description": "Chat with friends and play football by Trevor",
+  "start_url": "/trevor-chat/index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#111111",
+  "theme_color": "#00ff88",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/733/733585.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/733/733585.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
